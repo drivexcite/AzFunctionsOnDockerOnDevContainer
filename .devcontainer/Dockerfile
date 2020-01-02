@@ -22,6 +22,7 @@ ENV NVM_DIR=/home/vscode/.nvm
 # [Optional] Install the Azure CLI & Azure Functions Core Tools
 ARG INSTALL_AZURE_CLI="true"
 ARG INSTALL_AZURE_FUNCTIONS_CORE_TOOLS="true"
+ARG INSTALL_DOCKER_CLI="true"
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -49,8 +50,8 @@ RUN apt-get update \
         && curl -so- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash 2>&1 \
         && chown -R vscode:vscode ${NVM_DIR} \
         && /bin/bash -c "source $NVM_DIR/nvm.sh \
-            && nvm install ${NODE_VERSION} \
-            && nvm alias default ${NODE_VERSION}" 2>&1 \
+        && nvm install ${NODE_VERSION} \
+        && nvm alias default ${NODE_VERSION}" 2>&1 \
         && INIT_STRING='[ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"  && [ -s "$NVM_DIR/bash_completion" ] && \\. "$NVM_DIR/bash_completion"' \
         && echo $INIT_STRING >> /home/vscode/.bashrc \
         && echo $INIT_STRING >> /home/vscode/.zshrc \
@@ -81,6 +82,17 @@ RUN apt-get update \
         && apt-get update \
         && apt-get install -y azure-cli \
         && apt-get install -y azure-functions-core-tools; \
+    fi \
+    #
+    # Install Docker CE CLI
+    # https://github.com/Microsoft/vscode-dev-containers/tree/master/containers/docker-in-docker
+    && if [ "$INSTALL_DOCKER_CLI" = "true" ]; then \
+        apt-get update \
+        && apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common lsb-release \
+        && curl -fsSL https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]')/gpg | apt-key add - 2>/dev/null \
+        && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable" \
+        && apt-get update \
+        && apt-get install -y docker-ce-cli; \
     fi \
     #
     # Clean up

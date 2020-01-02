@@ -25,7 +25,7 @@
 	// and open / rebuild the container so the settings take effect.
 	//
 	"mounts": [
-		// "source=${env:HOME}${env:USERPROFILE}/.aspnet/https,target=/home/vscode/.aspnet/https,type=bind"
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
 	],
 	"remoteEnv": {
 		// [Optional] Override the default HTTP endpoints - need to listen to '*' for appPort to work

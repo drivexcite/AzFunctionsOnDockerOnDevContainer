@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:3.1-sdk AS installer-env
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS installer-env
 
 COPY . /src/dotnet-function-app
 RUN cd /src/dotnet-function-app && \
@@ -7,7 +7,7 @@ RUN cd /src/dotnet-function-app && \
 
 # To enable ssh & remote debugging on app service change the base image to the one below
 # FROM mcr.microsoft.com/azure-functions/dotnet:2.0-appservice 
-FROM mcr.microsoft.com/azure-functions/dotnet:3.1
+FROM mcr.microsoft.com/azure-functions/dotnet
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
 
