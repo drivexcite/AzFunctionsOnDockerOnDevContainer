@@ -11,7 +11,6 @@ To add support for (seemingly) running a Docker container inside a VS Code Remot
     && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable" \
     && apt-get update \
     && apt-get install -y docker-ce-cli; \
-#
 ```
 3.  Add the following code in the `.devcontainer/devcontainer.json`:
 ```json
