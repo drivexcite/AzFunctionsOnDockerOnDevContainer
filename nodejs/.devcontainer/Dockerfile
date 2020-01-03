@@ -16,19 +16,21 @@ ARG USERNAME=node
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
+ARG INSTALL_DOCKER_CLI="true"
+
 # Configure apt and install packages
 RUN apt-get update \
     && apt-get -y install --no-install-recommends apt-utils dialog 2>&1 \
     #
     # Verify git and needed tools are installed
     && apt-get -y install \
-        git \
-        iproute2 \
-        procps \
-        curl \
-        apt-transport-https \
-        gnupg2 \
-        lsb-release \
+    git \
+    iproute2 \
+    procps \
+    curl \
+    apt-transport-https \
+    gnupg2 \
+    lsb-release \
     #
     # Install Azure Functions, .NET Core, and Azure CLI
     && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" > /etc/apt/sources.list.d/azure-cli.list \
@@ -39,9 +41,9 @@ RUN apt-get update \
     #
     # [Optional] Update a non-root user to UID/GID if needed.
     && if [ "$USER_GID" != "1000" ] || [ "$USER_UID" != "1000" ]; then \
-        groupmod --gid $USER_GID $USERNAME \
-        && usermod --uid $USER_UID --gid $USER_GID $USERNAME \
-        && chown -R $USER_UID:$USER_GID /home/$USERNAME; \
+    groupmod --gid $USER_GID $USERNAME \
+    && usermod --uid $USER_UID --gid $USER_GID $USERNAME \
+    && chown -R $USER_UID:$USER_GID /home/$USERNAME; \
     fi \
     # [Optional] Add add sudo support for non-root user
     && apt-get install -y sudo \
@@ -51,10 +53,21 @@ RUN apt-get update \
     # Install eslint
     && npm install -g eslint \
     #
+    # Install Docker CE CLI
+    # https://github.com/Microsoft/vscode-dev-containers/tree/master/containers/docker-in-docker
+    && if [ "$INSTALL_DOCKER_CLI" = "true" ]; then \
+    apt-get update \
+    && apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common lsb-release \
+    && curl -fsSL https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]')/gpg | apt-key add - 2>/dev/null \
+    && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable" \
+    && apt-get update \
+    && apt-get install -y docker-ce-cli; \
+    fi \
+    #
     # Clean up
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
-        
+
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=dialog
